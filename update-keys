@@ -103,6 +103,9 @@ done < packager-revoked-keyids
 set +e
 cat master/*.asc master-revoked/*.asc packager/*.asc packager-revoked/*.asc > archlinux.gpg
 
+# HOLO: create a dummy revoked file
+touch archlinux-revoked
+
 # HOLO: rename files archlinux -> holo
 mv {archlinux,holo}.gpg
 mv {archlinux,holo}-trusted
