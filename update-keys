@@ -42,6 +42,9 @@ EOF
 # HOLO: remove initial import, causes bootstrapping issues
 #"${GPG[@]}" --import < archlinux.gpg
 
+# HOLO: import the ci package builder key, not on the keyservers yet
+"${GPG[@]}" --import < ci-package-builder-1.gpg
+
 rm -rf master{,-revoked} packager{,-revoked} archlinux-{trusted,revoked}
 mkdir master packager master-revoked packager-revoked
 
