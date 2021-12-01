@@ -39,7 +39,8 @@ Expire-Date: 0
 %echo Done
 EOF
 
-"${GPG[@]}" --import < archlinux.gpg
+# HOLO: remove initial import, causes bootstrapping issues
+#"${GPG[@]}" --import < archlinux.gpg
 
 rm -rf master{,-revoked} packager{,-revoked} archlinux-{trusted,revoked}
 mkdir master packager master-revoked packager-revoked
@@ -95,4 +96,11 @@ while read -ra data; do
 	echo "${keyid}" >> archlinux-revoked
 done < packager-revoked-keyids
 
+# HOLO: we ware not guaranteed to have revoked keys
+set +e
 cat master/*.asc master-revoked/*.asc packager/*.asc packager-revoked/*.asc > archlinux.gpg
+
+# HOLO: rename files archlinux -> holo
+mv {archlinux,holo}.gpg
+mv {archlinux,holo}-trusted
+mv {archlinux,holo}-revoked
