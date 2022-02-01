@@ -1,6 +1,10 @@
 ---
 image: archlinux:latest
 
+default:
+  tags:
+    - docker
+
 stages:
   - test
 
