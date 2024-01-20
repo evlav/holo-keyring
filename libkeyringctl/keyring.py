@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import defaultdict
+from enum import Enum
+from enum import unique
 from itertools import chain
 from logging import debug
 from logging import error
@@ -48,6 +50,18 @@ from .util import simplify_uid
 from .util import transform_fd_to_tmpfile
 
 PACKET_FILENAME_DATETIME_FORMAT: str = "%Y-%m-%d_%H-%M-%S"
+
+
+@unique
+class PacketType(Enum):
+    """All understood OpenPGP packet types and the file endings as output by `sq packet split`"""
+
+    PUBLIC_KEY = "Public-Key Packet"
+    USER_ID = "User ID Packet"
+    USER_ATTRIBUTE = "User Attribute Packet"
+    PUBLIC_SUBKEY = "Public-Subkey Packet"
+    SECRET_KEY = "Secret-Key Packet"
+    SIGNATURE = "Signature Packet"
 
 
 def is_pgp_fingerprint(string: str) -> bool:
@@ -318,29 +332,6 @@ def clean_keyring(keyring: Path) -> None:
                     certification.unlink()
 
 
-def get_packet_tag(name: str, *, prefix: str = "-") -> Optional[str]:
-    """Extract the packet tag from its filename.
-
-    sq split produces one file per packet, in which the tag is baked
-    into the filename. The way in which this tag can be extracted has
-    changed in successive sequoia versions.
-
-    Parameters
-    ----------
-    name: the packet dump filename
-    prefix: the prefix passed to sq
-    """
-
-    name = name.removeprefix(prefix)
-
-    tail = ""
-    for index, ch in enumerate(name):
-        if not (ch.isdigit() or ch == "-"):
-            tail = name[index:]
-            break
-    return tail.removeprefix("Unknown-")
-
-
 def convert_certificate(
     working_dir: Path,
     certificate: Path,
@@ -398,15 +389,14 @@ def convert_certificate(
 
     for packet in packet_split(working_dir=working_dir, certificate=certificate):
         debug(f"Processing packet {packet.name}")
-        tag = get_packet_tag(packet.name)
-        if tag == "Public-Key Packet":
+        if packet.name.endswith(PacketType.PUBLIC_KEY.value):
             current_packet_mode = "pubkey"
             current_packet_fingerprint = Fingerprint(packet_dump_field(packet, "Fingerprint"))
             current_packet_uid = None
 
             certificate_fingerprint = current_packet_fingerprint
             pubkey = packet
-        elif tag == "User ID Packet":
+        elif packet.name.endswith(PacketType.USER_ID.value):
             current_packet_mode = "uid"
             current_packet_fingerprint = None
             current_packet_uid = Uid(packet_dump_field(packet, "Value"))
@@ -416,17 +406,17 @@ def convert_certificate(
                     f"Duplicate User ID {current_packet_uid} used in packet {uids[current_packet_uid]} and {packet}"
                 )
             uids[current_packet_uid] = packet
-        elif tag == "User Attribute Packet":
+        elif packet.name.endswith(PacketType.USER_ATTRIBUTE.value):
             current_packet_mode = "uattr"
             current_packet_fingerprint = None
             current_packet_uid = None
-        elif tag == "Public-Subkey Packet":
+        elif packet.name.endswith(PacketType.PUBLIC_SUBKEY.value):
             current_packet_mode = "subkey"
             current_packet_fingerprint = Fingerprint(packet_dump_field(packet, "Fingerprint"))
             current_packet_uid = None
 
             subkeys[current_packet_fingerprint] = packet
-        elif tag == "Secret-Key Packet":
+        elif packet.name.endswith(PacketType.SECRET_KEY.value):
             error(
                 "\n###################################################################\n"
                 "Do not ever process your private key file!\n"
@@ -434,7 +424,7 @@ def convert_certificate(
                 "###################################################################"
             )
             raise Exception("Secret key detected, aborting")
-        elif tag == "Signature Packet":
+        elif packet.name.endswith(PacketType.SIGNATURE.value):
             convert_signature_packet(
                 packet=packet,
                 current_packet_mode=current_packet_mode,
@@ -977,8 +967,7 @@ def get_fingerprints_from_keyring_files(working_dir: Path, source: Iterable[Path
     for key in keys:
         for certificate in keyring_split(working_dir=working_dir, keyring=key, preserve_filename=True):
             for packet in packet_split(working_dir=working_dir, certificate=certificate):
-                tag = get_packet_tag(packet.name)
-                if tag == "Public-Key Packet":
+                if packet.name.endswith(PacketType.PUBLIC_KEY.value):
                     fingerprints[Fingerprint(packet_dump_field(packet, "Fingerprint"))] = Username(certificate.stem)
 
     debug(f"Fingerprints of PGP public keys in {source}: {fingerprints}")

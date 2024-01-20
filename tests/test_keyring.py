@@ -409,12 +409,12 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("Public-Key Packet"),
-                Path("Signature Packet"),
-                Path("User ID Packet"),
-                Path("User Attribute Packet"),
-                Path("Public-Subkey Packet"),
-                Path("Signature Packet"),
+                Path(keyring.PacketType.PUBLIC_KEY.value),
+                Path(keyring.PacketType.SIGNATURE.value),
+                Path(keyring.PacketType.USER_ID.value),
+                Path(keyring.PacketType.USER_ATTRIBUTE.value),
+                Path(keyring.PacketType.PUBLIC_SUBKEY.value),
+                Path(keyring.PacketType.SIGNATURE.value),
             ],
             [
                 "".join(choice("ABCDEF" + digits) for _ in range(40)),
@@ -427,7 +427,10 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path(""),
+                Path(keyring.PacketType.PUBLIC_KEY.value),
+                Path(keyring.PacketType.SIGNATURE.value),
+                Path(keyring.PacketType.USER_ID.value),
+                Path(keyring.PacketType.USER_ID.value),
             ],
             [
                 "".join(choice("ABCDEF" + digits) for _ in range(40)),
@@ -440,23 +443,7 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("-0-0-0-0Public-Key Packet"),
-                Path("-0-0-0-1Signature Packet"),
-                Path("-0-1-0User ID Packet"),
-                Path("-1User ID Packet"),
-            ],
-            [
-                "".join(choice("ABCDEF" + digits) for _ in range(40)),
-                "foo <foo@bar.com>",
-                "foo <foo@bar.com>",
-            ],
-            "bar",
-            raises(Exception),
-        ),
-        (
-            Path("foo.asc"),
-            [
-                Path("Secret-Key Packet"),
+                Path(keyring.PacketType.SECRET_KEY.value),
             ],
             [],
             None,
@@ -474,7 +461,7 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("Public-Key Packet"),
+                Path(keyring.PacketType.PUBLIC_KEY.value),
             ],
             [
                 None,

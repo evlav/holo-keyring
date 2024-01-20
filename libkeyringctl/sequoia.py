@@ -49,7 +49,7 @@ def keyring_split(working_dir: Path, keyring: Path, preserve_filename: bool = Fa
     keyring_dir = Path(mkdtemp(dir=working_dir, prefix="keyring-")).absolute()
 
     with cwd(keyring_dir):
-        system(["sq", "toolbox", "keyring", "split", "--prefix", "", str(keyring)])
+        system(["sq", "toolbox", "keyring", "split", str(keyring)])
 
     keyrings: List[Path] = list(natural_sort_path(keyring_dir.iterdir()))
 
@@ -75,7 +75,7 @@ def keyring_merge(certificates: List[Path], output: Optional[Path] = None, force
     The result if no output file has been used
     """
 
-    cmd = ["sq", "toolbox", "keyring", "merge"]
+    cmd = ["sq", "keyring", "merge"]
     if force:
         cmd.insert(1, "--force")
     if output:
@@ -103,7 +103,7 @@ def packet_split(working_dir: Path, certificate: Path) -> Iterable[Path]:
     packet_dir = Path(mkdtemp(dir=working_dir, prefix="packet-")).absolute()
 
     with cwd(packet_dir):
-        system(["sq", "toolbox", "packet", "split", "--prefix", "", str(certificate)])
+        system(["sq", "toolbox", "packet", "split", "", str(certificate)])
     return natural_sort_path(packet_dir.iterdir())
 
 
