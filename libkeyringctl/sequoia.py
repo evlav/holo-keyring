@@ -96,7 +96,7 @@ def packet_split(working_dir: Path, certificate: Path) -> Iterable[Path]:
     packet_dir = Path(mkdtemp(dir=working_dir, prefix="packet-")).absolute()
 
     with cwd(packet_dir):
-        system(["sq", "packet", "split", "--prefix", "", str(certificate)])
+        system(["sq", "toolbox", "packet", "split", "--prefix", "", str(certificate)])
     return natural_sort_path(packet_dir.iterdir())
 
 
@@ -114,7 +114,7 @@ def packet_join(packets: List[Path], output: Optional[Path] = None, force: bool 
     The result if no output file has been used
     """
 
-    cmd = ["sq", "packet", "join"]
+    cmd = ["sq", "toolbox", "packet", "join"]
     if force:
         cmd.insert(1, "--force")
     packets_str = list(map(lambda path: str(path), packets))
@@ -167,7 +167,7 @@ def packet_dump(packet: Path) -> str:
     The contents of the packet dump
     """
 
-    return system(["sq", "packet", "dump", str(packet)])
+    return system(["sq", "toolbox", "packet", "dump", str(packet)])
 
 
 def packet_dump_field(packet: Path, field: str) -> str:
