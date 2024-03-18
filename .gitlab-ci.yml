@@ -41,7 +41,9 @@ test:
     when: always
     reports:
       junit: build/junit-report.xml
-      cobertura: build/coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage.xml
 
 build_install:
   stage: test
