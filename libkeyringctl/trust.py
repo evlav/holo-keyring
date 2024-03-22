@@ -180,7 +180,7 @@ def certificate_trust(  # noqa: ignore=C901
     return trust
 
 
-def trust_icon(trust: Trust) -> str:
+def trust_icon(trust: Optional[Trust]) -> str:
     """Returns a single character icon representing the passed trust status
 
     Parameters
