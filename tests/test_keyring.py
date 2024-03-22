@@ -409,12 +409,12 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("--PublicKey"),
-                Path("--Signature"),
-                Path("--UserID"),
-                Path("--UserAttribute"),
-                Path("--PublicSubkey"),
-                Path("--Signature"),
+                Path("Public-Key Packet"),
+                Path("Signature Packet"),
+                Path("User ID Packet"),
+                Path("User Attribute Packet"),
+                Path("Public-Subkey Packet"),
+                Path("Signature Packet"),
             ],
             [
                 "".join(choice("ABCDEF" + digits) for _ in range(40)),
@@ -427,10 +427,7 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("--PublicKey"),
-                Path("--Signature"),
-                Path("--UserID"),
-                Path("--UserID"),
+                Path(""),
             ],
             [
                 "".join(choice("ABCDEF" + digits) for _ in range(40)),
@@ -443,7 +440,23 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("--SecretKey"),
+                Path("-0-0-0-0Public-Key Packet"),
+                Path("-0-0-0-1Signature Packet"),
+                Path("-0-1-0User ID Packet"),
+                Path("-1User ID Packet"),
+            ],
+            [
+                "".join(choice("ABCDEF" + digits) for _ in range(40)),
+                "foo <foo@bar.com>",
+                "foo <foo@bar.com>",
+            ],
+            "bar",
+            raises(Exception),
+        ),
+        (
+            Path("foo.asc"),
+            [
+                Path("Secret-Key Packet"),
             ],
             [],
             None,
@@ -461,7 +474,7 @@ def test_convert_signature_packet(
         (
             Path("foo.asc"),
             [
-                Path("--PublicKey"),
+                Path("Public-Key Packet"),
             ],
             [
                 None,
