@@ -281,7 +281,7 @@ def key_extract_certificate(key: Path, output: Optional[Path]) -> str:
     The result of the extract in case output is None
     """
 
-    cmd = ["sq", "key", "extract-cert", str(key)]
+    cmd = ["sq", "toolbox", "extract-cert", str(key)]
     if output:
         cmd.extend(["--output", str(output)])
     return system(cmd)
