@@ -4,6 +4,7 @@ image: archlinux:latest
 default:
   tags:
     - docker
+    - isolated
 
 stages:
   - test
